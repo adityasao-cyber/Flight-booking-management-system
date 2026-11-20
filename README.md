@@ -50,29 +50,27 @@ AI580,Tiruchirappalli,Port Blair,65,10800
 
 ---
 
-## 3. Architecture and Class Design
+## 3. Architecture and Program Structure
 
-The project uses a clean and straightforward object-oriented design without any external dependencies. It relies exclusively on Python's built-in standard library (`csv`, `os`, `sys`, `datetime`).
+The project is designed to be simple, readable, and beginner-friendly without any external dependencies. It relies exclusively on Python's built-in standard library (`csv`, `os`, `sys`).
 
 ### Component Breakdown
-1. **`Flight` (Core Class)**:
+1. **`Flight` Class**:
    - Holds `flight_no`, `origin`, `destination`, `seats`, and `fare`.
    - `matches_route(origin, destination)`: Case-insensitive match on departure and arrival cities.
    - `book_seats(num_seats)`: Validates seat availability, subtracts seats, and returns total fare.
    - `cancel_seats(num_seats)`: Restores cancelled seats back to inventory.
    - `format_search_result()`: Formats flight record for search display.
 
-2. **`Booking` (Reservation Class)**:
-   - Tracks passenger reservations with unique booking ID, passenger name, flight number, reserved seats, total fare, timestamp, and booking status (`CONFIRMED` or `CANCELLED`).
-   - `format_confirmation(seats_left)`: Generates confirmation message string.
+2. **File Persistence**:
+   - `load_flights()` / `save_flights()`: Reads from and updates `flights.csv` to keep seat counts accurate.
+   - `load_bookings()` / `save_bookings()`: Reads and records passenger reservations in `bookings.csv`.
 
-3. **`FlightBookingService` (Logic & Persistence Layer)**:
-   - Reads records from and writes records to `flights.csv` and `bookings.csv`.
-   - Orchestrates search queries, seat reservations, cancellations, and state synchronization.
-   - Enforces business rules: rejects zero or negative seat requests, flags full flights, and prevents overbooking.
-
-4. **`FlightBookingCLI` (Console Interface)**:
-   - Interactive console menu with input validation and tabular output pagination.
+3. **Core Functions & Menu**:
+   - `search_flights(flights)`: Finds available flights for given route.
+   - `book_flight(flights, bookings)`: Enforces booking validations and confirms seat reservations.
+   - `cancel_booking(flights, bookings)`: Restores seat count to the flight inventory upon cancellation.
+   - `main()`: Clean interactive console menu (options 1 to 7).
 
 ```mermaid
 classDiagram
@@ -87,41 +85,6 @@ classDiagram
         +cancel_seats(num_seats) int
         +format_search_result() str
     }
-
-    class Booking {
-        +str booking_id
-        +str passenger_name
-        +str flight_no
-        +int seats
-        +int total_fare
-        +str timestamp
-        +str status
-        +format_confirmation(seats_left) str
-    }
-
-    class FlightBookingService {
-        +list flights
-        +dict bookings
-        +load_flights() void
-        +save_flights() void
-        +load_bookings() void
-        +save_bookings() void
-        +search_flights(origin, destination) list
-        +book_flight(flight_no, passenger, seats) tuple
-        +cancel_booking(booking_id) tuple
-    }
-
-    class FlightBookingCLI {
-        +FlightBookingService service
-        +run() void
-        +handle_search() void
-        +handle_booking() void
-        +handle_cancellation() void
-    }
-
-    FlightBookingCLI --> FlightBookingService
-    FlightBookingService *-- Flight
-    FlightBookingService *-- Booking
 ```
 
 ---

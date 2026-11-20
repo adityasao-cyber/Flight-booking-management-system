@@ -34,19 +34,18 @@ In commercial air travel and reservation software, maintaining seat count integr
 
 ## 3. System Design and Logic Flow
 
-### 3.1 OOP Structure
+### 3.1 Program Structure
 The application is organized cleanly inside `main.py`:
 
-1. **Entity Models (`Flight`, `Booking`)**:
-   - `Flight`: Maintains core state attributes for each route. Provides `matches_route(origin, destination)`, `book_seats(num_seats)`, `cancel_seats(num_seats)`, and `format_search_result()`.
-   - `Booking`: Represents a confirmed ticket with a unique identifier (`BK1`, `BK2`, etc.), passenger name, flight number, reserved seats, total fare, and timestamp.
+1. **`Flight` Class**:
+   - Maintains core state attributes for each route (`flight_no`, `origin`, `destination`, `seats`, `fare`). Provides `matches_route()`, `book_seats()`, `cancel_seats()`, and `format_search_result()`.
 
-2. **Service & Persistence (`FlightBookingService`)**:
-   - Handles CSV file operations for `flights.csv` and `bookings.csv`.
-   - Enforces validation checks: rejects non-positive seat requests, checks if a flight is full, prevents overbooking, and handles cancellations by ID.
+2. **File Handling**:
+   - `load_flights()` / `save_flights()`: Reads and updates `flights.csv` accurately.
+   - `load_bookings()` / `save_bookings()`: Records passenger reservations in `bookings.csv`.
 
-3. **CLI Layer (`FlightBookingCLI`)**:
-   - Manages user input, interactive prompts, formatted tabular outputs, and pagination.
+3. **Core Functions & Console Interface**:
+   - `search_flights()`, `book_flight()`, `cancel_booking()`, `view_flights()`, `view_bookings()`, and interactive `main()` menu loop.
 
 ### 3.2 Booking Logic Flow
 ```
