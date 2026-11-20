@@ -34,22 +34,18 @@ In commercial air travel and reservation software, maintaining seat count integr
 
 ## 3. System Design and Logic Flow
 
-### 3.1 Layered OOP Structure
-The application is organized into distinct layers inside `main.py`:
+### 3.1 OOP Structure
+The application is organized cleanly inside `main.py`:
 
-1. **Entity Layer (`Flight`, `Booking`)**:
-   - `Flight`: Maintains core state attributes for each route. Provides `matches_route(origin, destination)`, `book_seats(num_seats)`, and `cancel_seats(num_seats)`.
+1. **Entity Models (`Flight`, `Booking`)**:
+   - `Flight`: Maintains core state attributes for each route. Provides `matches_route(origin, destination)`, `book_seats(num_seats)`, `cancel_seats(num_seats)`, and `format_search_result()`.
    - `Booking`: Represents a confirmed ticket with a unique identifier (`BK1`, `BK2`, etc.), passenger name, flight number, reserved seats, total fare, and timestamp.
 
-2. **Data Layer (`FlightRepository`, `BookingRepository`)**:
-   - Handles CSV serialization and deserialization.
-   - Uses atomic file writes (staging via `.tmp` followed by `os.replace`) to prevent file corruption during abrupt shutdowns.
-
-3. **Service Layer (`FlightBookingService`)**:
-   - Implements business logic and transaction boundaries.
+2. **Service & Persistence (`FlightBookingService`)**:
+   - Handles CSV file operations for `flights.csv` and `bookings.csv`.
    - Enforces validation checks: rejects non-positive seat requests, checks if a flight is full, prevents overbooking, and handles cancellations by ID.
 
-4. **CLI Layer (`FlightBookingCLI`)**:
+3. **CLI Layer (`FlightBookingCLI`)**:
    - Manages user input, interactive prompts, formatted tabular outputs, and pagination.
 
 ### 3.2 Booking Logic Flow

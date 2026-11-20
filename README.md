@@ -52,28 +52,26 @@ AI580,Tiruchirappalli,Port Blair,65,10800
 
 ## 3. Architecture and Class Design
 
-The project uses a clean multi-layer design without any external dependencies. It relies exclusively on Python's standard library (`csv`, `os`, `sys`, `logging`, `datetime`).
+The project uses a clean and straightforward object-oriented design without any external dependencies. It relies exclusively on Python's built-in standard library (`csv`, `os`, `sys`, `datetime`).
 
 ### Component Breakdown
-1. **`Flight` (Domain Entity)**:
+1. **`Flight` (Core Class)**:
    - Holds `flight_no`, `origin`, `destination`, `seats`, and `fare`.
    - `matches_route(origin, destination)`: Case-insensitive match on departure and arrival cities.
    - `book_seats(num_seats)`: Validates seat availability, subtracts seats, and returns total fare.
    - `cancel_seats(num_seats)`: Restores cancelled seats back to inventory.
+   - `format_search_result()`: Formats flight record for search display.
 
-2. **`Booking` (Domain Entity)**:
-   - Tracks passenger reservations with unique booking ID, passenger name, flight number, reserved seats, total fare, ISO timestamp, and booking status (`CONFIRMED` or `CANCELLED`).
+2. **`Booking` (Reservation Class)**:
+   - Tracks passenger reservations with unique booking ID, passenger name, flight number, reserved seats, total fare, timestamp, and booking status (`CONFIRMED` or `CANCELLED`).
+   - `format_confirmation(seats_left)`: Generates confirmation message string.
 
-3. **`FlightRepository` & `BookingRepository` (Data Access Layer)**:
-   - Reads records from and writes records to CSV files.
-   - Uses atomic file writes (`os.replace`) to prevent file corruption if the program is closed mid-write.
-   - Re-creates default starter records if `flights.csv` is accidentally deleted.
-
-4. **`FlightBookingService` (Business Logic Layer)**:
+3. **`FlightBookingService` (Logic & Persistence Layer)**:
+   - Reads records from and writes records to `flights.csv` and `bookings.csv`.
    - Orchestrates search queries, seat reservations, cancellations, and state synchronization.
    - Enforces business rules: rejects zero or negative seat requests, flags full flights, and prevents overbooking.
 
-5. **`FlightBookingCLI` (Presentation Layer)**:
+4. **`FlightBookingCLI` (Console Interface)**:
    - Interactive console menu with input validation and tabular output pagination.
 
 ```mermaid
@@ -98,35 +96,32 @@ classDiagram
         +int total_fare
         +str timestamp
         +str status
-    }
-
-    class FlightRepository {
-        +str filepath
-        +load_all() list
-        +save_all(flights) void
-    }
-
-    class BookingRepository {
-        +str filepath
-        +load_all() dict
-        +save_all(bookings) void
+        +format_confirmation(seats_left) str
     }
 
     class FlightBookingService {
+        +list flights
+        +dict bookings
+        +load_flights() void
+        +save_flights() void
+        +load_bookings() void
+        +save_bookings() void
         +search_flights(origin, destination) list
         +book_flight(flight_no, passenger, seats) tuple
         +cancel_booking(booking_id) tuple
     }
 
     class FlightBookingCLI {
+        +FlightBookingService service
         +run() void
+        +handle_search() void
+        +handle_booking() void
+        +handle_cancellation() void
     }
 
     FlightBookingCLI --> FlightBookingService
-    FlightBookingService --> FlightRepository
-    FlightBookingService --> BookingRepository
-    FlightRepository *-- Flight
-    BookingRepository *-- Booking
+    FlightBookingService *-- Flight
+    FlightBookingService *-- Booking
 ```
 
 ---
